@@ -60,8 +60,6 @@ async function postAlert(apiConfig, payload) {
     body: JSON.stringify(payload),
   });
 
-  console.log("response", await response.text());
-
   if (!response.ok) {
     const responseText = await response.text();
     throw new Error(
