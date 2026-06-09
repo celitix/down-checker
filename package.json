@@ -1,0 +1,14 @@
+{
+  "name": "website-checker-app",
+  "version": "1.0.0",
+  "description": "Basic Node app to monitor website status and send SMS/WhatsApp alerts through custom APIs.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "check": "node --check src/index.js && node --check src/config.js && node --check src/checker.js && node --check src/notifier.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
