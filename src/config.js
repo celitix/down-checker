@@ -8,8 +8,12 @@ module.exports = {
       url: "https://livarostudio.com",
     },
     {
-      name: "Google",
-      url: "https://www.google.com",
+      name: "Celitix",
+      url: "https://www.celitix.com",
+    },
+    {
+      name: "Proactive Digital",
+      url: "https://www.proactivedigital.in",
     },
   ],
 
