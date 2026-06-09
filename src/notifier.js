@@ -4,30 +4,62 @@ function buildDownMessageForSMS(result) {
     `Name: ${result.website.name}`,
     `URL: ${result.website.url}`,
     `Checked at: ${result.checkedAt}`,
-    `Error: ${result.error || "Unknown error"}`
+    `Error: ${result.error || "Unknown error"}`,
   ].join("\n");
 }
 
-function buildDownMessageForWhatsapp(result) {
-  return [
-    "Website down alert",
-    `Name: ${result.website.name}`,
-    `URL: ${result.website.url}`,
-    `Checked at: ${result.checkedAt}`,
-    `Error: ${result.error || "Unknown error"}`
-  ].join("\n");
+function buildDownMessageForWhatsapp(result, phone) {
+  // return [
+  //   "Website down alert",
+  //   `Name: ${result.website.name}`,
+  //   `URL: ${result.website.url}`,
+  //   `Checked at: ${result.checkedAt}`,
+  //   `Error: ${result.error || "Unknown error"}`
+  // ].join("\n");
+
+  const payload = {
+    messaging_product: "whatsapp",
+    recipient_type: "individual",
+    to: phone,
+    type: "template",
+    template: {
+      name: "sample_cpr_templatenew",
+      language: {
+        code: "en",
+      },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            {
+              type: "text",
+              text: result.website.name,
+            },
+            {
+              type: "text",
+              text: result.website.url,
+            },
+          ],
+        },
+      ],
+    },
+  };
+
+  return payload;
 }
 
 async function postAlert(apiConfig, payload) {
   const response = await fetch(apiConfig.endpoint, {
     method: apiConfig.method,
     headers: apiConfig.headers,
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     const responseText = await response.text();
-    throw new Error(`Alert API failed with HTTP ${response.status}: ${responseText}`);
+    throw new Error(
+      `Alert API failed with HTTP ${response.status}: ${responseText}`,
+    );
   }
 }
 
@@ -38,7 +70,7 @@ async function sendSmsAlert(result, recipient, smsConfig) {
 
   await postAlert(smsConfig, {
     to: recipient.phone,
-    message: buildDownMessageForSMS(result)
+    message: buildDownMessageForSMS(result),
   });
 }
 
@@ -47,10 +79,10 @@ async function sendWhatsappAlert(result, recipient, whatsappConfig) {
     return;
   }
 
-  await postAlert(whatsappConfig, {
-    to: recipient.phone,
-    message: buildDownMessageForWhatsapp(result)
-  });
+  await postAlert(
+    whatsappConfig,
+    buildDownMessageForWhatsapp(result, recipient.phone),
+  );
 }
 
 async function sendDownAlerts(result, recipients, alertsConfig) {
@@ -71,5 +103,5 @@ async function sendDownAlerts(result, recipients, alertsConfig) {
 }
 
 module.exports = {
-  sendDownAlerts
+  sendDownAlerts,
 };

@@ -5,19 +5,19 @@ module.exports = {
   websites: [
     {
       name: "Livaro",
-      url: "https://livarostudio.com"
+      url: "https://livarostudio.com",
     },
     {
       name: "Google",
-      url: "https://www.google.com"
-    }
+      url: "https://www.google.com",
+    },
   ],
 
   recipients: [
     {
       name: "Admin",
-      phone: "919672670732"
-    }
+      phone: "919672670732",
+    },
   ],
 
   alerts: {
@@ -27,17 +27,18 @@ module.exports = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": "replace-with-your-sms-api-key"
-      }
+        "X-API-Key": process.env.SMS_KEY,
+      },
     },
     whatsapp: {
       enabled: true,
-      endpoint: "https://your-whatsapp-api.example.com/send",
+      endpoint: "https://api.celitix.com/wrapper/waba/message",
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": "replace-with-your-whatsapp-api-key"
-      }
-    }
-  }
+        key: process.env.WHATSAPP_KEY,
+        wabaNumber: "919251006460",
+      },
+    },
+  },
 };

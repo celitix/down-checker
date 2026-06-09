@@ -1,3 +1,7 @@
+const { loadEnv } = require("./loadEnv");
+
+loadEnv();
+
 const config = require("./config");
 const { checkWebsite } = require("./checker");
 const { sendDownAlerts } = require("./notifier");
