@@ -1,11 +1,28 @@
-function buildDownMessageForSMS(result) {
-  return [
-    "Website down alert",
-    `Name: ${result.website.name}`,
-    `URL: ${result.website.url}`,
-    `Checked at: ${result.checkedAt}`,
-    `Error: ${result.error || "Unknown error"}`,
-  ].join("\n");
+function buildDownMessageForSMS(result, phone) {
+  // return [
+  //   "Website down alert",
+  //   `Name: ${result.website.name}`,
+  //   `URL: ${result.website.url}`,
+  //   `Checked at: ${result.checkedAt}`,
+  //   `Error: ${result.error || "Unknown error"}`,
+  // ].join("\n");
+
+  const message = `Your One Time Password for healthsquare.in is ${result.website.name} valid for ${result.website.url}. Do not share this with anyone.`;
+  const payload = {
+    messages: [
+      {
+        message,
+        to: phone,
+        senderId: "HLTSQR",
+        templateId: "1707176542867924468",
+        entityId: "1401676480000010217",
+        unicode: false,
+        clientRefId: "ORDER_1001",
+      },
+    ],
+  };
+
+  return payload;
 }
 
 function buildDownMessageForWhatsapp(result, phone) {
@@ -68,10 +85,7 @@ async function sendSmsAlert(result, recipient, smsConfig) {
     return;
   }
 
-  await postAlert(smsConfig, {
-    to: recipient.phone,
-    message: buildDownMessageForSMS(result),
-  });
+  await postAlert(smsConfig, buildDownMessageForSMS(result, recipient.phone));
 }
 
 async function sendWhatsappAlert(result, recipient, whatsappConfig) {

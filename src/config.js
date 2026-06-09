@@ -23,11 +23,11 @@ module.exports = {
   alerts: {
     sms: {
       enabled: true,
-      endpoint: "https://your-sms-api.example.com/send",
+      endpoint: "https://api.celitix.com/v1/sms/send",
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": process.env.SMS_KEY,
+        "x-api-key": process.env.SMS_KEY,
       },
     },
     whatsapp: {
