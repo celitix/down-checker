@@ -4,7 +4,7 @@ loadEnv();
 
 const config = require("./config");
 const { checkWebsite } = require("./checker");
-const { sendDownAlerts } = require("./notifier");
+const { sendStatusAlerts } = require("./notifier");
 
 const downSites = new Set();
 
@@ -16,21 +16,29 @@ async function runChecks() {
 
     if (result.isUp) {
       console.log(
-        `[UP] ${website.name} (${website.url}) - HTTP ${result.statusCode}, ${result.responseTimeMs}ms`
+        `[UP] ${website.name} (${website.url}) - HTTP ${result.statusCode}, ${result.responseTimeMs}ms`,
       );
-      downSites.delete(website.url);
+
+      if (downSites.has(website.url)) {
+        console.log(`${website.name} recovered; sending UP alert.`);
+        downSites.delete(website.url);
+        await sendStatusAlerts(result, config.recipients, config.alerts);
+      }
+
       continue;
     }
 
     console.log(`[DOWN] ${website.name} (${website.url}) - ${result.error}`);
 
     if (downSites.has(website.url)) {
-      console.log(`Alert already sent for ${website.name}; waiting for recovery before sending again.`);
+      console.log(
+        `Alert already sent for ${website.name}; waiting for recovery before sending again.`,
+      );
       continue;
     }
 
     downSites.add(website.url);
-    await sendDownAlerts(result, config.recipients, config.alerts);
+    await sendStatusAlerts(result, config.recipients, config.alerts);
   }
 }
 

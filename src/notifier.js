@@ -7,7 +7,7 @@ function buildDownMessageForSMS(result, phone) {
   //   `Error: ${result.error || "Unknown error"}`,
   // ].join("\n");
 
-  const message = `Hi Team, Website/App Status Alert: ${result.website.name} Internal Team - PPSPL`;
+  const message = `Hi Team, Website/App Status Alert: ${result.website.name} is ${result.isUp ? "UP" : "DOWN"} Internal Team - PPSPL`;
   const payload = {
     messages: [
       {
@@ -33,7 +33,7 @@ function buildDownMessageForWhatsapp(result, phone) {
           type: "BODY",
           parameters: [
             {
-              text: result.website.name,
+              text: `${result.website.name} ${result.isUp ? "is UP" : "is DOWN"}`,
               type: "text",
             },
           ],
@@ -87,7 +87,7 @@ async function sendWhatsappAlert(result, recipient, whatsappConfig) {
   );
 }
 
-async function sendDownAlerts(result, recipients, alertsConfig) {
+async function sendStatusAlerts(result, recipients, alertsConfig) {
   const tasks = [];
 
   for (const recipient of recipients) {
@@ -105,5 +105,5 @@ async function sendDownAlerts(result, recipients, alertsConfig) {
 }
 
 module.exports = {
-  sendDownAlerts,
+  sendStatusAlerts,
 };
