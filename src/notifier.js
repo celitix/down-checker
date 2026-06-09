@@ -7,15 +7,15 @@ function buildDownMessageForSMS(result, phone) {
   //   `Error: ${result.error || "Unknown error"}`,
   // ].join("\n");
 
-  const message = `Your One Time Password for healthsquare.in is ${result.website.name} valid for ${result.website.url}. Do not share this with anyone.`;
+  const message = `Hi Team, Website/App Status Alert: ${result.website.name} Internal Team - PPSPL`;
   const payload = {
     messages: [
       {
         message,
         to: phone,
-        senderId: "HLTSQR",
-        templateId: "1707176542867924468",
-        entityId: "1401676480000010217",
+        senderId: "PPSPL",
+        templateId: "1407174947422049627",
+        entityId: "1401478660000018667",
         unicode: false,
         clientRefId: "ORDER_1001",
       },
@@ -26,40 +26,28 @@ function buildDownMessageForSMS(result, phone) {
 }
 
 function buildDownMessageForWhatsapp(result, phone) {
-  // return [
-  //   "Website down alert",
-  //   `Name: ${result.website.name}`,
-  //   `URL: ${result.website.url}`,
-  //   `Checked at: ${result.checkedAt}`,
-  //   `Error: ${result.error || "Unknown error"}`
-  // ].join("\n");
-
   const payload = {
-    messaging_product: "whatsapp",
-    recipient_type: "individual",
-    to: phone,
-    type: "template",
     template: {
-      name: "sample_cpr_templatenew",
-      language: {
-        code: "en",
-      },
       components: [
         {
-          type: "body",
+          type: "BODY",
           parameters: [
             {
-              type: "text",
               text: result.website.name,
-            },
-            {
               type: "text",
-              text: result.website.url,
             },
           ],
         },
       ],
+      name: "alertw",
+      language: {
+        code: "en",
+        policy: "deterministic",
+      },
     },
+    messaging_product: "whatsapp",
+    to: phone,
+    type: "template",
   };
 
   return payload;
@@ -71,6 +59,8 @@ async function postAlert(apiConfig, payload) {
     headers: apiConfig.headers,
     body: JSON.stringify(payload),
   });
+
+  console.log("response", await response.text());
 
   if (!response.ok) {
     const responseText = await response.text();

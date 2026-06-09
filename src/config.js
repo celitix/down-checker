@@ -20,7 +20,23 @@ module.exports = {
   recipients: [
     {
       name: "Admin",
-      phone: "919672670732",
+      phone: "919680002299",
+    },
+    {
+      name: "Admin2",
+      phone: "919680002000",
+    },
+    {
+      name: "Admin3",
+      phone: "919680006460",
+    },
+    {
+      name: "Admin4",
+      phone: "919251006460",
+    },
+    {
+      name: "Admin5",
+      phone: "919680003399",
     },
   ],
 
@@ -31,7 +47,7 @@ module.exports = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.SMS_KEY,
+        "x-api-key": process.env.API_KEY,
       },
     },
     whatsapp: {
@@ -40,8 +56,8 @@ module.exports = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        key: process.env.WHATSAPP_KEY,
-        wabaNumber: "919251006460",
+        key: process.env.API_KEY,
+        wabaNumber: process.env.WHATSAPP_NUMBER,
       },
     },
   },
