@@ -15,27 +15,43 @@ module.exports = {
       name: "Proactive Digital",
       url: "https://www.proactivedigital.in",
     },
+    {
+      name: "Health Square",
+      url: "https://healthsquare.com",
+    },
+    {
+      name: "Bot Celitix Impressive",
+      url: "https://bot.celitix.com/impressive",
+    },
+    {
+      name: "Bot Celitix Full Marks",
+      url: "https://bot.celitix.com/full_marks",
+    },
+    {
+      name: "Thamosa Stays",
+      url: "https://thamosastays.com",
+    },
   ],
 
   recipients: [
     {
-      name: "Admin",
+      name: "Aman Sir 1",
       phone: "919680002299",
     },
     {
-      name: "Admin2",
+      name: "Aman Sir 2",
       phone: "919680002000",
     },
     {
-      name: "Admin3",
+      name: "Support 1",
       phone: "919680006460",
     },
     {
-      name: "Admin4",
+      name: "Support 2",
       phone: "919251006460",
     },
     {
-      name: "Admin5",
+      name: "Prateek Sir",
       phone: "919680003399",
     },
   ],
