@@ -8,23 +8,27 @@ module.exports = {
       url: "https://livarostudio.com",
     },
     {
-      name: "Celitix",
+      name: "Celitix Website",
       url: "https://www.celitix.com",
     },
     {
-      name: "Proactive Digital",
+      name: "Celitix App",
+      url: "https://app.celitix.com",
+    },
+    {
+      name: "Proactive Digital Website",
       url: "https://www.proactivedigital.in",
     },
     {
       name: "Health Square",
-      url: "https://healthsquare.com",
+      url: "https://healthsquare.in",
     },
     {
-      name: "Bot Celitix Impressive",
+      name: "Bot Impressive",
       url: "https://bot.celitix.com/impressive",
     },
     {
-      name: "Bot Celitix Full Marks",
+      name: "Bot Full Marks",
       url: "https://bot.celitix.com/full_marks",
     },
     {
