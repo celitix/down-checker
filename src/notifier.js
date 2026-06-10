@@ -13,9 +13,9 @@ function buildDownMessageForSMS(result, phone) {
       {
         message,
         to: phone,
-        senderId: "PPSPL",
-        templateId: "1407174947422049627",
-        entityId: "1401478660000018667",
+        senderId: PROSMS_SENDER_ID,
+        templateId: PROSMS_TEMPLATE_ID,
+        entityId: PROSMS_ENTITY_ID,
         unicode: false,
         clientRefId: "ORDER_1001",
       },
@@ -43,7 +43,8 @@ function shouldUseFallbackSms(result, fallbackSmsConfig) {
   }
 
   return (
-    getHostname(result.website.url) === fallbackSmsConfig.downOnlyHost.toLowerCase()
+    getHostname(result.website.url) ===
+    fallbackSmsConfig.downOnlyHost.toLowerCase()
   );
 }
 
@@ -102,7 +103,9 @@ async function sendFallbackSmsAlert(result, recipient, fallbackSmsConfig) {
   params.set("mobiles", `+${recipient.phone}`);
   params.set("sms", buildStatusMessage(result));
 
-  const response = await fetch(`${fallbackSmsConfig.endpoint}?${params.toString()}`);
+  const response = await fetch(
+    `${fallbackSmsConfig.endpoint}?${params.toString()}`,
+  );
 
   if (!response.ok) {
     const responseText = await response.text();
@@ -137,7 +140,9 @@ async function sendStatusAlerts(result, recipients, alertsConfig) {
 
   for (const recipient of recipients) {
     if (useFallbackSms) {
-      tasks.push(sendFallbackSmsAlert(result, recipient, alertsConfig.fallbackSms));
+      tasks.push(
+        sendFallbackSmsAlert(result, recipient, alertsConfig.fallbackSms),
+      );
       continue;
     }
 
