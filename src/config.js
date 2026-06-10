@@ -25,8 +25,8 @@ module.exports = {
     },
     {
       name: "Celitix_IP",
-      // url: "http://35.154.166.140",
-      url: "https://api.celitix.com",
+      url: "http://35.154.166.140",
+      // url: "https://api.celitix.com",
       recipientIds: ["support_1", "support_2", "prateek"],
     },
     {
