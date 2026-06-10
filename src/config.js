@@ -6,56 +6,69 @@ module.exports = {
     {
       name: "Proactive_APP",
       url: "https://www.proactivesms.in",
+      recipientIds: ["support_1", "support_2"],
     },
     {
       name: "Celitix Website",
       url: "https://www.celitix.com",
+      recipientIds: ["aman_1", "aman_2", "support_1", "support_2"],
     },
     {
       name: "Celitix_APP",
       url: "https://app.celitix.com",
+      recipientIds: ["aman_1", "aman_2", "support_1", "support_2"],
     },
     {
       name: "Proactive Digital Website",
       url: "https://www.proactivedigital.in",
+      recipientIds: ["support_1"],
     },
     {
       name: "Celitix_IP",
       // url: "http://35.154.166.140",
       url: "https://api.celitix.com",
+      recipientIds: ["support_1", "support_2", "prateek"],
     },
     {
       name: "Bot Impressive",
       url: "https://bot.celitix.com/impressive",
+      recipientIds: ["support_1"],
     },
     {
       name: "Bot Full Marks",
       url: "https://bot.celitix.com/full_marks",
+      recipientIds: ["support_1"],
     },
     {
       name: "Thamosa Stays",
       url: "https://thamosastays.com",
+      recipientIds: ["support_1"],
     },
   ],
 
   recipients: [
     {
+      id: "aman_1",
       name: "Aman Sir 1",
       phone: "919680002299",
     },
     {
+      id: "aman_2",
       name: "Aman Sir 2",
       phone: "919680002000",
     },
     {
+      id: "support_1",
       name: "Support 1",
       phone: "919680006460",
     },
     {
+      id: "support_2",
       name: "Support 2",
       phone: "919251006460",
     },
     {
+      id: "prateek",
       name: "Prateek Sir",
       phone: "919680003399",
     },

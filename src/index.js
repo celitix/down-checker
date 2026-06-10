@@ -8,6 +8,28 @@ const { sendStatusAlerts } = require("./notifier");
 
 const downSites = new Set();
 
+function getRecipientsForWebsite(website) {
+  if (!Array.isArray(website.recipientIds) || website.recipientIds.length === 0) {
+    return config.recipients;
+  }
+
+  const recipientsById = new Map(
+    config.recipients.map((recipient) => [recipient.id, recipient]),
+  );
+
+  const recipients = website.recipientIds
+    .map((recipientId) => recipientsById.get(recipientId))
+    .filter(Boolean);
+
+  if (recipients.length === 0) {
+    console.warn(
+      `No matching recipients found for ${website.name}; alert will not be sent.`,
+    );
+  }
+
+  return recipients;
+}
+
 async function runChecks() {
   console.log(`Running website checks at ${new Date().toISOString()}`);
 
@@ -22,7 +44,11 @@ async function runChecks() {
       if (downSites.has(website.url)) {
         console.log(`${website.name} recovered; sending UP alert.`);
         downSites.delete(website.url);
-        await sendStatusAlerts(result, config.recipients, config.alerts);
+        await sendStatusAlerts(
+          result,
+          getRecipientsForWebsite(website),
+          config.alerts,
+        );
       }
 
       continue;
@@ -38,7 +64,11 @@ async function runChecks() {
     }
 
     downSites.add(website.url);
-    await sendStatusAlerts(result, config.recipients, config.alerts);
+    await sendStatusAlerts(
+      result,
+      getRecipientsForWebsite(website),
+      config.alerts,
+    );
   }
 }
 
