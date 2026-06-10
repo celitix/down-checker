@@ -30,6 +30,13 @@ module.exports = {
       recipientIds: ["support_1", "support_2", "prateek"],
     },
     {
+      name: "TCP_8001",
+      type: "tcp",
+      host: "65.1.58.141",
+      port: 8001,
+      recipientIds: ["support_1", "support_2", "prateek"],
+    },
+    {
       name: "Bot Impressive",
       url: "https://bot.celitix.com/impressive",
       recipientIds: ["support_1"],

@@ -3,7 +3,7 @@ const { loadEnv } = require("./loadEnv");
 loadEnv();
 
 const config = require("./config");
-const { checkWebsite } = require("./checker");
+const { checkWebsite, getMonitorTarget } = require("./checker");
 const { sendStatusAlerts } = require("./notifier");
 
 const downSites = new Set();
@@ -34,16 +34,17 @@ async function runChecks() {
   console.log(`Running website checks at ${new Date().toISOString()}`);
 
   for (const website of config.websites) {
+    const monitorTarget = getMonitorTarget(website);
     const result = await checkWebsite(website, config.requestTimeoutMs);
 
     if (result.isUp) {
       console.log(
-        `[UP] ${website.name} (${website.url}) - HTTP ${result.statusCode}, ${result.responseTimeMs}ms`,
+        `[UP] ${website.name} (${monitorTarget}) - ${result.checkType.toUpperCase()} ${result.statusCode || "OK"}, ${result.responseTimeMs}ms`,
       );
 
-      if (downSites.has(website.url)) {
+      if (downSites.has(monitorTarget)) {
         console.log(`${website.name} recovered; sending UP alert.`);
-        downSites.delete(website.url);
+        downSites.delete(monitorTarget);
         await sendStatusAlerts(
           result,
           getRecipientsForWebsite(website),
@@ -54,16 +55,16 @@ async function runChecks() {
       continue;
     }
 
-    console.log(`[DOWN] ${website.name} (${website.url}) - ${result.error}`);
+    console.log(`[DOWN] ${website.name} (${monitorTarget}) - ${result.error}`);
 
-    if (downSites.has(website.url)) {
+    if (downSites.has(monitorTarget)) {
       console.log(
         `Alert already sent for ${website.name}; waiting for recovery before sending again.`,
       );
       continue;
     }
 
-    downSites.add(website.url);
+    downSites.add(monitorTarget);
     await sendStatusAlerts(
       result,
       getRecipientsForWebsite(website),

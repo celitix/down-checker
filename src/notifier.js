@@ -13,9 +13,9 @@ function buildDownMessageForSMS(result, phone) {
       {
         message,
         to: phone,
-        senderId: PROSMS_SENDER_ID,
-        templateId: PROSMS_TEMPLATE_ID,
-        entityId: PROSMS_ENTITY_ID,
+        senderId: process.env.PROSMS_SENDER_ID,
+        templateId: process.env.PROSMS_TEMPLATE_ID,
+        entityId: process.env.PROSMS_ENTITY_ID,
         unicode: false,
         clientRefId: "ORDER_1001",
       },
@@ -37,13 +37,21 @@ function getHostname(url) {
   }
 }
 
+function getMonitorHostname(website) {
+  if (website.type === "tcp") {
+    return String(website.host || "").toLowerCase();
+  }
+
+  return getHostname(website.url);
+}
+
 function shouldUseFallbackSms(result, fallbackSmsConfig) {
   if (!fallbackSmsConfig || !fallbackSmsConfig.enabled || result.isUp) {
     return false;
   }
 
   return (
-    getHostname(result.website.url) ===
+    getMonitorHostname(result.website) ===
     fallbackSmsConfig.downOnlyHost.toLowerCase()
   );
 }
