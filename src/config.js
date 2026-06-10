@@ -4,15 +4,15 @@ module.exports = {
 
   websites: [
     {
-      name: "Livaro",
-      url: "https://livarostudio.com",
+      name: "Proactive_APP",
+      url: "https://www.proactivesms.in",
     },
     {
       name: "Celitix Website",
       url: "https://www.celitix.com",
     },
     {
-      name: "Celitix App",
+      name: "Celitix_APP",
       url: "https://app.celitix.com",
     },
     {
@@ -20,8 +20,9 @@ module.exports = {
       url: "https://www.proactivedigital.in",
     },
     {
-      name: "Health Square",
-      url: "https://healthsquare.in",
+      name: "Celitix_IP",
+      // url: "http://35.154.166.140",
+      url: "https://api.celitix.com",
     },
     {
       name: "Bot Impressive",
@@ -58,6 +59,10 @@ module.exports = {
       name: "Prateek Sir",
       phone: "919680003399",
     },
+    // {
+    //   name: "Arihant",
+    //   phone: "917665576953",
+    // },
   ],
 
   alerts: {
@@ -78,6 +83,18 @@ module.exports = {
         "Content-Type": "application/json",
         key: process.env.API_KEY,
         wabaNumber: process.env.WHATSAPP_NUMBER,
+      },
+    },
+    fallbackSms: {
+      enabled: true,
+      downOnlyHost: "api.celitix.com",
+      endpoint: "https://www.proactivesms.in/sendsms.jsp",
+      query: {
+        user: process.env.PROSMS_USER || "prosms",
+        password: process.env.PROSMS_PASSWORD,
+        senderid: process.env.PROSMS_SENDER_ID,
+        entityid: process.env.PROSMS_ENTITY_ID,
+        tempid: process.env.PROSMS_TEMPLATE_ID,
       },
     },
   },

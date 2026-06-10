@@ -43,6 +43,9 @@ async function runChecks() {
 }
 
 async function start() {
+  downSites.clear();
+  console.log("Down website state cleared on startup.");
+
   await runChecks();
   setInterval(runChecks, config.checkIntervalMs);
 }
