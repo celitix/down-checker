@@ -124,6 +124,7 @@
 module.exports = {
   checkIntervalMs: 30 * 1000,
   requestTimeoutMs: 10 * 1000,
+  alertResendIntervalMs: 10 * 60 * 1000,
 
   websites: [
     {
