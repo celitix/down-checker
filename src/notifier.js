@@ -26,7 +26,7 @@ function buildDownMessageForSMS(result, phone) {
 }
 
 function buildStatusMessage(result) {
-  return `Hi Team, Website/App Status Alert: ${result.website.name} is ${result.isUp ? "UP" : "DOWN"} Internal Team - PPSPL`;
+  return `Hi Team,\n\nWebsite/App Status Alert: ${result.website.name} is ${result.isUp ? "UP" : "DOWN"}\n\n Internal Team - PPSPL`;
 }
 
 function getHostname(url) {

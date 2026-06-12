@@ -39,8 +39,8 @@ npm run check
 
 ## Behavior
 
-- Checks every 60 seconds
+- Checks every 30 seconds
 - Treats non-2xx HTTP responses, timeouts, and network errors as down
-- Sends SMS and WhatsApp alerts once per down event
-- Does not send the same alert repeatedly while the website remains down
+- Sends SMS and WhatsApp alerts when a website first goes down
+- Sends the alert again every 30 minutes while the website remains down
 - Allows another alert after the website recovers and goes down again

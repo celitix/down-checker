@@ -6,7 +6,7 @@ const config = require("./config");
 const { checkWebsite, getMonitorTarget } = require("./checker");
 const { sendStatusAlerts } = require("./notifier");
 
-const downSites = new Set();
+const downSites = new Map();
 
 function getRecipientsForWebsite(website) {
   if (!Array.isArray(website.recipientIds) || website.recipientIds.length === 0) {
@@ -32,6 +32,7 @@ function getRecipientsForWebsite(website) {
 
 async function runChecks() {
   console.log(`Running website checks at ${new Date().toISOString()}`);
+  const now = Date.now();
 
   for (const website of config.websites) {
     const monitorTarget = getMonitorTarget(website);
@@ -57,14 +58,22 @@ async function runChecks() {
 
     console.log(`[DOWN] ${website.name} (${monitorTarget}) - ${result.error}`);
 
-    if (downSites.has(monitorTarget)) {
+    const lastAlertSentAt = downSites.get(monitorTarget);
+
+    if (
+      lastAlertSentAt &&
+      now - lastAlertSentAt < config.alertResendIntervalMs
+    ) {
+      const nextAlertAt = new Date(
+        lastAlertSentAt + config.alertResendIntervalMs,
+      ).toISOString();
       console.log(
-        `Alert already sent for ${website.name}; waiting for recovery before sending again.`,
+        `Alert already sent for ${website.name}; next repeat after ${nextAlertAt}.`,
       );
       continue;
     }
 
-    downSites.add(monitorTarget);
+    downSites.set(monitorTarget, now);
     await sendStatusAlerts(
       result,
       getRecipientsForWebsite(website),
