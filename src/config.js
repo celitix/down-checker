@@ -123,8 +123,10 @@
 
 module.exports = {
   checkIntervalMs: 30 * 1000,
-  requestTimeoutMs: 20 * 1000,
+  requestTimeoutMs: 10 * 1000,
   alertResendIntervalMs: 10 * 60 * 1000,
+  downConfirmationChecks: 2,
+  upConfirmationChecks: 2,
 
   websites: [
     {
@@ -179,6 +181,8 @@ module.exports = {
     {
       name: "WABA Now",
       url: "https://wabanow.com/",
+      method: "HEAD",
+      timeoutMs: 45 * 1000,
       recipientIds: ["prateek", "dial", "aman_1"],
     },
     {

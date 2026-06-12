@@ -43,6 +43,22 @@ function checkTcpConnection(website, timeoutMs) {
   });
 }
 
+async function checkHttpUrl(website, timeoutMs, method) {
+  const response = await fetch(website.url, {
+    method,
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (compatible; WebsiteChecker/1.0; +https://localhost)",
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      ...website.headers,
+    },
+    redirect: "follow",
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+
+  return response;
+}
+
 async function checkWebsite(website, timeoutMs) {
   const startedAt = Date.now();
 
@@ -50,12 +66,14 @@ async function checkWebsite(website, timeoutMs) {
     return checkTcpConnection(website, timeoutMs);
   }
 
+  const method = website.method || "HEAD";
+
   try {
-    const response = await fetch(website.url, {
-      method: "GET",
-      redirect: "follow",
-      signal: AbortSignal.timeout(timeoutMs)
-    });
+    let response = await checkHttpUrl(website, timeoutMs, method);
+
+    if (!response.ok && method === "HEAD" && website.fallbackToGet !== false) {
+      response = await checkHttpUrl(website, timeoutMs, "GET");
+    }
 
     return {
       website,
@@ -65,6 +83,7 @@ async function checkWebsite(website, timeoutMs) {
       checkedAt: new Date().toISOString(),
       error: response.ok ? null : `HTTP ${response.status}`,
       checkType: "http",
+      method,
       target: getMonitorTarget(website),
     };
   } catch (error) {
@@ -76,6 +95,7 @@ async function checkWebsite(website, timeoutMs) {
       checkedAt: new Date().toISOString(),
       error: error.message,
       checkType: "http",
+      method,
       target: getMonitorTarget(website),
     };
   }

@@ -6,7 +6,7 @@ const config = require("./config");
 const { checkWebsite, getMonitorTarget } = require("./checker");
 const { sendStatusAlerts } = require("./notifier");
 
-const downSites = new Map();
+const monitorStates = new Map();
 
 function getRecipientsForWebsite(website) {
   if (!Array.isArray(website.recipientIds) || website.recipientIds.length === 0) {
@@ -36,36 +36,64 @@ async function runChecks() {
 
   for (const website of config.websites) {
     const monitorTarget = getMonitorTarget(website);
-    const result = await checkWebsite(website, config.requestTimeoutMs);
+    const timeoutMs = website.timeoutMs || config.requestTimeoutMs;
+    const result = await checkWebsite(website, timeoutMs);
+    const state = monitorStates.get(monitorTarget) || {
+      status: "up",
+      consecutiveDownChecks: 0,
+      consecutiveUpChecks: 0,
+      lastAlertSentAt: null,
+    };
 
     if (result.isUp) {
+      state.consecutiveUpChecks += 1;
+      state.consecutiveDownChecks = 0;
+
       console.log(
-        `[UP] ${website.name} (${monitorTarget}) - ${result.checkType.toUpperCase()} ${result.statusCode || "OK"}, ${result.responseTimeMs}ms`,
+        `[UP] ${website.name} (${monitorTarget}) - ${result.checkType.toUpperCase()} ${result.method || ""} ${result.statusCode || "OK"}, ${result.responseTimeMs}ms`,
       );
 
-      if (downSites.has(monitorTarget)) {
+      if (
+        state.status === "down" &&
+        state.consecutiveUpChecks >= config.upConfirmationChecks
+      ) {
         console.log(`${website.name} recovered; sending UP alert.`);
-        downSites.delete(monitorTarget);
+        monitorStates.delete(monitorTarget);
         await sendStatusAlerts(
           result,
           getRecipientsForWebsite(website),
           config.alerts,
         );
+      } else {
+        monitorStates.set(monitorTarget, state);
       }
 
       continue;
     }
 
+    state.consecutiveDownChecks += 1;
+    state.consecutiveUpChecks = 0;
+    monitorStates.set(monitorTarget, state);
+
     console.log(`[DOWN] ${website.name} (${monitorTarget}) - ${result.error}`);
 
-    const lastAlertSentAt = downSites.get(monitorTarget);
+    if (
+      state.status !== "down" &&
+      state.consecutiveDownChecks < config.downConfirmationChecks
+    ) {
+      console.log(
+        `${website.name} failed ${state.consecutiveDownChecks}/${config.downConfirmationChecks} checks; waiting before sending DOWN alert.`,
+      );
+      continue;
+    }
 
     if (
-      lastAlertSentAt &&
-      now - lastAlertSentAt < config.alertResendIntervalMs
+      state.status === "down" &&
+      state.lastAlertSentAt &&
+      now - state.lastAlertSentAt < config.alertResendIntervalMs
     ) {
       const nextAlertAt = new Date(
-        lastAlertSentAt + config.alertResendIntervalMs,
+        state.lastAlertSentAt + config.alertResendIntervalMs,
       ).toISOString();
       console.log(
         `Alert already sent for ${website.name}; next repeat after ${nextAlertAt}.`,
@@ -73,7 +101,10 @@ async function runChecks() {
       continue;
     }
 
-    downSites.set(monitorTarget, now);
+    state.status = "down";
+    state.lastAlertSentAt = now;
+    monitorStates.set(monitorTarget, state);
+
     await sendStatusAlerts(
       result,
       getRecipientsForWebsite(website),
@@ -83,8 +114,8 @@ async function runChecks() {
 }
 
 async function start() {
-  downSites.clear();
-  console.log("Down website state cleared on startup.");
+  monitorStates.clear();
+  console.log("Monitor state cleared on startup.");
 
   await runChecks();
   setInterval(runChecks, config.checkIntervalMs);
