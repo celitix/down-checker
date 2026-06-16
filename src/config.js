@@ -126,6 +126,7 @@ module.exports = {
   requestTimeoutMs: 10 * 1000,
   alertResendIntervalMs: 10 * 60 * 1000,
   downConfirmationChecks: 2,
+  downConfirmationDelayMs: 10 * 1000,
   upConfirmationChecks: 2,
 
   websites: [
@@ -141,7 +142,7 @@ module.exports = {
     },
     {
       name: "Celitix_APP",
-      url: "https://app.celitix.com",
+      url: "http://3.111.160.66",
       recipientIds: ["aman_1", "aman_2", "support_1", "support_2", "prateek"],
     },
     {
@@ -150,7 +151,7 @@ module.exports = {
       recipientIds: ["support_1", "prateek"],
     },
     {
-      name: "Celitix_IP",
+      name: "Celitix_Reseller_IP",
       url: "http://35.154.166.140",
       // url: "https://api.celitix.com",
       recipientIds: ["aman_1", "aman_2", "support_1", "support_2", "prateek"],
@@ -257,7 +258,7 @@ module.exports = {
     },
     fallbackSms: {
       enabled: true,
-      downOnlyHost: "35.154.166.140",
+      downOnlyHost: "3.111.160.66",
       endpoint: "https://www.proactivesms.in/sendsms.jsp",
       query: {
         user: process.env.PROSMS_USER || "prosms",

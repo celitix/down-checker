@@ -1,28 +1,19 @@
-function buildDownMessageForSMS(result, phone) {
-  // return [
-  //   "Website down alert",
-  //   `Name: ${result.website.name}`,
-  //   `URL: ${result.website.url}`,
-  //   `Checked at: ${result.checkedAt}`,
-  //   `Error: ${result.error || "Unknown error"}`,
-  // ].join("\n");
-
+function buildDownMessageForRecipients(result, recipients) {
   const message = buildStatusMessage(result);
-  const payload = {
-    messages: [
-      {
-        message,
-        to: phone,
-        senderId: process.env.PROSMS_SENDER_ID,
-        templateId: process.env.PROSMS_TEMPLATE_ID,
-        entityId: process.env.PROSMS_ENTITY_ID,
-        unicode: false,
-        clientRefId: "ORDER_1001",
-      },
-    ],
-  };
+  const checkedAt = result.checkedAt.replace(/\D/g, "");
+  const websiteRef = result.website.name.replace(/[^a-z0-9]/gi, "_");
 
-  return payload;
+  return {
+    messages: recipients.map((recipient) => ({
+      message,
+      to: recipient.phone,
+      senderId: process.env.PROSMS_SENDER_ID,
+      templateId: process.env.PROSMS_TEMPLATE_ID,
+      entityId: process.env.PROSMS_ENTITY_ID,
+      unicode: false,
+      clientRefId: `STATUS_${websiteRef}_${checkedAt}_${recipient.id}`,
+    })),
+  };
 }
 
 function buildStatusMessage(result) {
@@ -99,7 +90,7 @@ async function postAlert(apiConfig, payload) {
   }
 }
 
-async function sendFallbackSmsAlert(result, recipient, fallbackSmsConfig) {
+async function sendFallbackSmsAlerts(result, recipients, fallbackSmsConfig) {
   const params = new URLSearchParams();
 
   for (const [key, value] of Object.entries(fallbackSmsConfig.query)) {
@@ -108,7 +99,10 @@ async function sendFallbackSmsAlert(result, recipient, fallbackSmsConfig) {
     }
   }
 
-  params.set("mobiles", `+${recipient.phone}`);
+  params.set(
+    "mobiles",
+    recipients.map((recipient) => `+${recipient.phone}`).join(","),
+  );
   params.set("sms", buildStatusMessage(result));
 
   const response = await fetch(
@@ -123,12 +117,12 @@ async function sendFallbackSmsAlert(result, recipient, fallbackSmsConfig) {
   }
 }
 
-async function sendSmsAlert(result, recipient, smsConfig) {
+async function sendSmsAlerts(result, recipients, smsConfig) {
   if (!smsConfig.enabled) {
     return;
   }
 
-  await postAlert(smsConfig, buildDownMessageForSMS(result, recipient.phone));
+  await postAlert(smsConfig, buildDownMessageForRecipients(result, recipients));
 }
 
 async function sendWhatsappAlert(result, recipient, whatsappConfig) {
@@ -146,16 +140,20 @@ async function sendStatusAlerts(result, recipients, alertsConfig) {
   const tasks = [];
   const useFallbackSms = shouldUseFallbackSms(result, alertsConfig.fallbackSms);
 
-  for (const recipient of recipients) {
-    if (useFallbackSms) {
-      tasks.push(
-        sendFallbackSmsAlert(result, recipient, alertsConfig.fallbackSms),
-      );
-      continue;
-    }
+  if (recipients.length === 0) {
+    return;
+  }
 
-    tasks.push(sendSmsAlert(result, recipient, alertsConfig.sms));
-    tasks.push(sendWhatsappAlert(result, recipient, alertsConfig.whatsapp));
+  if (useFallbackSms) {
+    tasks.push(
+      sendFallbackSmsAlerts(result, recipients, alertsConfig.fallbackSms),
+    );
+  } else {
+    tasks.push(sendSmsAlerts(result, recipients, alertsConfig.sms));
+
+    for (const recipient of recipients) {
+      tasks.push(sendWhatsappAlert(result, recipient, alertsConfig.whatsapp));
+    }
   }
 
   await Promise.allSettled(tasks).then((results) => {
