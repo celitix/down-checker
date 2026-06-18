@@ -141,28 +141,55 @@ async function sendStatusAlerts(result, recipients, alertsConfig) {
   const useFallbackSms = shouldUseFallbackSms(result, alertsConfig.fallbackSms);
 
   if (recipients.length === 0) {
-    return;
+    return [];
   }
 
   if (useFallbackSms) {
-    tasks.push(
-      sendFallbackSmsAlerts(result, recipients, alertsConfig.fallbackSms),
-    );
+    tasks.push({
+      recipientPhones: recipients.map((recipient) => recipient.phone),
+      promise: sendFallbackSmsAlerts(
+        result,
+        recipients,
+        alertsConfig.fallbackSms,
+      ),
+    });
   } else {
-    tasks.push(sendSmsAlerts(result, recipients, alertsConfig.sms));
+    if (alertsConfig.sms.enabled) {
+      tasks.push({
+        recipientPhones: recipients.map((recipient) => recipient.phone),
+        promise: sendSmsAlerts(result, recipients, alertsConfig.sms),
+      });
+    }
 
-    for (const recipient of recipients) {
-      tasks.push(sendWhatsappAlert(result, recipient, alertsConfig.whatsapp));
+    if (alertsConfig.whatsapp.enabled) {
+      for (const recipient of recipients) {
+        tasks.push({
+          recipientPhones: [recipient.phone],
+          promise: sendWhatsappAlert(result, recipient, alertsConfig.whatsapp),
+        });
+      }
     }
   }
 
-  await Promise.allSettled(tasks).then((results) => {
-    for (const alertResult of results) {
-      if (alertResult.status === "rejected") {
-        console.error("Alert send failed:", alertResult.reason.message);
-      }
+  if (tasks.length === 0) {
+    return [];
+  }
+
+  const sentPhones = new Set();
+  const results = await Promise.allSettled(tasks.map((task) => task.promise));
+
+  for (const [index, alertResult] of results.entries()) {
+    if (alertResult.status === "rejected") {
+      console.error("Alert send failed:", alertResult.reason.message);
+      continue;
     }
-  });
+
+    for (const phone of tasks[index].recipientPhones) {
+      sentPhones.add(phone);
+    }
+  }
+
+  return Array.from(sentPhones);
 }
 
 module.exports = {

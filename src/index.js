@@ -54,6 +54,7 @@ async function runChecks() {
         consecutiveDownChecks: 0,
         consecutiveUpChecks: 0,
         lastAlertSentAt: null,
+        downAlertSentPhones: [],
       };
 
       if (result.isUp) {
@@ -68,13 +69,22 @@ async function runChecks() {
           state.status === "down" &&
           state.consecutiveUpChecks >= config.upConfirmationChecks
         ) {
-          console.log(`${website.name} recovered; sending UP alert.`);
-          monitorStates.delete(monitorTarget);
-          await sendStatusAlerts(
-            result,
-            getRecipientsForWebsite(website),
-            config.alerts,
+          const downAlertSentPhones = new Set(state.downAlertSentPhones || []);
+          const recipients = getRecipientsForWebsite(website).filter(
+            (recipient) => downAlertSentPhones.has(recipient.phone),
           );
+
+          monitorStates.delete(monitorTarget);
+
+          if (recipients.length === 0) {
+            console.log(
+              `${website.name} recovered; no UP alert sent because no DOWN alert was sent to any current recipient.`,
+            );
+            continue;
+          }
+
+          console.log(`${website.name} recovered; sending UP alert.`);
+          await sendStatusAlerts(result, recipients, config.alerts);
         } else {
           monitorStates.set(monitorTarget, state);
         }
@@ -134,11 +144,15 @@ async function runChecks() {
       state.lastAlertSentAt = Date.now();
       monitorStates.set(monitorTarget, state);
 
-      await sendStatusAlerts(
+      const downAlertSentPhones = await sendStatusAlerts(
         result,
         getRecipientsForWebsite(website),
         config.alerts,
       );
+      state.downAlertSentPhones = Array.from(
+        new Set([...(state.downAlertSentPhones || []), ...downAlertSentPhones]),
+      );
+      monitorStates.set(monitorTarget, state);
     }
   } finally {
     isRunning = false;
